@@ -34,9 +34,9 @@ cd luarocks-3.0.4
     --with-lua=/cache/usr/luajit/ \
     --lua-suffix=jit \
     --with-lua-include=/cache/usr/luajit/include/luajit-2.0
-
 make
 make install 
 
+pwd
 %runscript
 exec /bin/bash "$@"
