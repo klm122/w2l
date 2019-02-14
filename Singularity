@@ -19,7 +19,7 @@ mkdir -p /cache/eigen-eigen-07105f7124f9
 
 # Install dependencies
 apt-get update -y
-apt-get install git wget curl cmake build-essential apt-utils unzip apt-transport-https -y
+apt-get install apt-utils git wget curl cmake build-essential apt-utils unzip apt-transport-https -y
 apt-get install libboost-dev libboost-system-dev libboost-thread-dev libboost-test-dev libboost-all-dev zlib1g-dev bzip2 libbz2-dev liblzma-dev -y
 apt-get install libfftw3-dev libfftw3-doc libsndfile-dev -y
 
