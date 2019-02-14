@@ -20,7 +20,7 @@ mkdir -p /cache/eigen-eigen-07105f7124f9
 
 # Install dependencies
 apt-get update -y
-apt-get install -y apt-utils git wget cmake
+apt-get install -y apt-utils git wget cmake unzip
 
 wget http://luajit.org/download/LuaJIT-2.0.5.tar.gz
 tar zxf LuaJIT-2.0.5.tar.gz
