@@ -23,15 +23,48 @@ apt-get install git wget curl cmake build-essential apt-utils unzip apt-transpor
 apt-get install libboost-dev libboost-system-dev libboost-thread-dev libboost-test-dev libboost-all-dev zlib1g-dev bzip2 libbz2-dev liblzma-dev -y
 apt-get install libfftw3-dev libfftw3-doc libsndfile-dev -y
 
-git clone https://github.com/torch/distro.git /cache/usr/torch --recursive
-cd torch; bash install-deps;
-./install.sh
+# Install MKL - modified from https://github.com/eddelbuettel/mkl4deb/blob/master/script.sh
+cd /tmp
+wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
+apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
+sh -c 'echo deb https://apt.repos.intel.com/mkl all main > /etc/apt/sources.list.d/intel-mkl.list'
+apt-get update -y
+apt-get install intel-mkl-64bit-2018.2-046 -y
+update-alternatives --install /usr/lib/x86_64-linux-gnu/libblas.so     libblas.so-x86_64-linux-gnu      /opt/intel/mkl/lib/intel64/libmkl_rt.so 50
+update-alternatives --install /usr/lib/x86_64-linux-gnu/libblas.so.3   libblas.so.3-x86_64-linux-gnu    /opt/intel/mkl/lib/intel64/libmkl_rt.so 50
+update-alternatives --install /usr/lib/x86_64-linux-gnu/liblapack.so   liblapack.so-x86_64-linux-gnu    /opt/intel/mkl/lib/intel64/libmkl_rt.so 50
+update-alternatives --install /usr/lib/x86_64-linux-gnu/liblapack.so.3 liblapack.so.3-x86_64-linux-gnu  /opt/intel/mkl/lib/intel64/libmkl_rt.so 50
+echo "/opt/intel/lib/intel64"     >  /etc/ld.so.conf.d/mkl.conf
+echo "/opt/intel/mkl/lib/intel64" >> /etc/ld.so.conf.d/mkl.conf
+ldconfig
+echo "MKL_THREADING_LAYER=GNU" >> /etc/environment
+
+# LuaJIT and LuaRocks
+git clone https://github.com/torch/luajit-rocks.git
+cd luajit-rocks
+mkdir build; cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=/cache/usr -DWITH_LUAJIT21=OFF
+make -j 4
+make install
+cd ../..
+
+cd ..
+KenLM
+wget https://kheafield.com/code/kenlm.tar.gz
+tar xfvz kenlm.tar.gz
+rm kenlm.tar.gz
+cd kenlm
+mkdir build && cd build
+(cd /cache; wget -O - https://bitbucket.org/eigen/eigen/get/3.2.8.tar.bz2 |tar xj)
+cmake .. -DCMAKE_INSTALL_PREFIX=/cache/usr -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+make -j 4
+make install
+cp -a lib/* /softs/usr/lib
+cd ../..
 
 apt-get install libopenmpi-dev openmpi-bin libhdf5-openmpi-dev
 
-
-
-
-%./Preprocess_Data.sh
+MPI_CXX_COMPILER=mpicxx MPI_CXX_COMPILE_FLAGS="-O3" /cache/usr/luarocks make rocks/torchmpi-scm-1.rockspec
+# TorchMPI
 %runscript
 exec /bin/bash "$@"
