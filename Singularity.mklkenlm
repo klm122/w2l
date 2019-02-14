@@ -1,6 +1,5 @@
 Bootstrap: docker
 From: ubuntu:latest
-%files
 %environment
 # Update bashrc file to include mkl
 export PATH=/cache/usr/bin:$PATH
