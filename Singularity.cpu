@@ -1,7 +1,7 @@
 Bootstrap: docker
 From: ubuntu:latest
 %labels
-MAINTAINER KOULALI
+MAINTAINER Mohammed-Amine KOULALI
 SPECIES Dinosaur
 
 %files
