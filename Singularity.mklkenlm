@@ -37,20 +37,7 @@ cd luarocks-3.0.4
     --with-lua-include=/cache/usr/luajit/include/luajit-2.0
 
 make
-make install
-
-which luarocks
-ls /cache/usr
-
-# LuaJIT and LuaRocks
-#git clone https://github.com/torch/luajit-rocks.git
-#cd luajit-rocks
-#mkdir build; cd build
-#cmake .. -DCMAKE_INSTALL_PREFIX=/cache/usr -DWITH_LUAJIT21=OFF
-#make -j 4
-#make install
-#cd ../..
-#ls /cache/usr 
+make install 
 
 %runscript
 exec /bin/bash "$@"
