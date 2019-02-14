@@ -61,7 +61,15 @@ make install
 cp -a lib/* /softs/usr/lib
 cd ../..
 
-apt-get install libopenmpi-dev openmpi-bin libhdf5-openmpi-dev
+# OpenMPI
+wget https://www.open-mpi.org/software/ompi/v3.0/downloads/openmpi-3.0.1.tar.bz2
+tar xfj openmpi-3.0.1.tar.bz2
+rm openmpi-3.0.1.tar.bz2 
+cd openmpi-3.0.1; mkdir build; cd build
+../configure --prefix=/cache/usr --enable-mpi-cxx --enable-shared --with-slurm --enable-mpi-ext=affinity
+make -j 20 all
+make install
+cd ../..
 
 MPI_CXX_COMPILER=mpicxx MPI_CXX_COMPILE_FLAGS="-O3" /cache/usr/luarocks make rocks/torchmpi-scm-1.rockspec
 # TorchMPI
