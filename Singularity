@@ -48,8 +48,7 @@ make -j 4
 make install
 cd ../..
 
-cd ..
-KenLM
+#KenLM
 wget https://kheafield.com/code/kenlm.tar.gz
 tar xfvz kenlm.tar.gz
 rm kenlm.tar.gz
