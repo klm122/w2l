@@ -15,22 +15,27 @@ export EIGEN3_ROOT=/cache/eigen-eigen-07105f7124f9
 mkdir -p /softs/usr/lib
 mkdir -p /softs/usr/bin
 mkdir -p /cache/usr/bin
+mkdir -p /cache/usr/luajit
 mkdir -p /cache/eigen-eigen-07105f7124f9
 
 # Install dependencies
 apt-get update -y
-apt-get install -y apt-utils git wget cmake unzip apt-transport-https
+apt-get install -y apt-utils git wget cmake
 
 wget http://luajit.org/download/LuaJIT-2.0.5.tar.gz
 tar zxf LuaJIT-2.0.5.tar.gz
 cd LuaJIT-2.0.5
 make
-make install PREFIX=/cache/usr
+make install PREFIX=/cache/usr/luajit
 
 wget http://luarocks.github.io/luarocks/releases/luarocks-3.0.4.tar.gz
 tar zxf luarocks-3.0.4.tar.gz
 cd luarocks-3.0.4
-./configure --prefix=/cache/usr
+./configure --prefix=/cache/usr/luajit \
+    --with-lua=/cache/usr/luajit/ \
+    --lua-suffix=jit
+#    \--with-lua-include=/cache/usr/luajit/include/luajit-2.1
+
 make
 make install
 
