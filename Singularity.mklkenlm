@@ -41,7 +41,7 @@ make install
 cd ..
 
 git clone https://github.com/facebookresearch/TorchMPI.git
-ccd TorchMPI
+cd TorchMPI
 cd rocks
 MPI_CXX_COMPILER=mpicxx MPI_CXX_COMPILE_FLAGS="-O3" /cache/usr/luajit/bin/luarocks make rocks/torchmpi-scm-1.rockspec
 cd ../..
