@@ -15,13 +15,14 @@ export EIGEN3_ROOT=/cache/eigen-eigen-07105f7124f9
 mkdir -p /softs/usr/lib
 mkdir -p /softs/usr/bin
 mkdir -p /cache/usr/bin
+mkdir -p /cache/usr/luajit
 mkdir -p /cache/eigen-eigen-07105f7124f9
 
 # Install dependencies
 apt-get update -y
-apt-get install apt-utils git wget curl cmake build-essential apt-utils unzip apt-transport-https -y
+apt-get install apt-utils git wget curl cmake build-essential unzip apt-transport-https
 apt-get install libboost-dev libboost-system-dev libboost-thread-dev libboost-test-dev libboost-all-dev zlib1g-dev bzip2 libbz2-dev liblzma-dev -y
-apt-get install libfftw3-dev libfftw3-doc libsndfile-dev -y
+apt-get install libfftw3-dev libfftw3-doc libsndfile-dev
 
 # Install MKL - modified from https://github.com/eddelbuettel/mkl4deb/blob/master/script.sh
 cd /tmp
@@ -40,13 +41,31 @@ ldconfig
 echo "MKL_THREADING_LAYER=GNU" >> /etc/environment
 
 # LuaJIT and LuaRocks
-git clone https://github.com/torch/luajit-rocks.git
-cd luajit-rocks
-mkdir build; cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=/cache/usr -DWITH_LUAJIT21=OFF
-make -j 4
-make install
-cd ../..
+#git clone https://github.com/torch/luajit-rocks.git
+#cd luajit-rocks
+#mkdir build; cd build
+#cmake .. -DCMAKE_INSTALL_PREFIX=/cache/usr -DWITH_LUAJIT21=OFF
+#make -j 4
+#make install
+#cd ../..
+
+wget http://luajit.org/download/LuaJIT-2.0.5.tar.gz
+tar zxf LuaJIT-2.0.5.tar.gz
+cd LuaJIT-2.0.5
+make
+make install PREFIX=/cache/usr/luajit
+cd ..
+
+wget http://luarocks.github.io/luarocks/releases/luarocks-3.0.4.tar.gz
+tar zxf luarocks-3.0.4.tar.gz
+cd luarocks-3.0.4
+./configure --prefix=/cache/usr/luajit \
+    --with-lua=/cache/usr/luajit/ \
+    --lua-suffix=jit \
+    --with-lua-include=/cache/usr/luajit/include/luajit-2.0
+make
+make install 
+cd ..
 
 #KenLM
 wget https://kheafield.com/code/kenlm.tar.gz
@@ -71,7 +90,7 @@ make -j 20 all
 make install
 cd ../..
 
-#MPI_CXX_COMPILER=mpicxx MPI_CXX_COMPILE_FLAGS="-O3" /cache/usr/luarocks make rocks/torchmpi-scm-1.rockspec
 # TorchMPI
+MPI_CXX_COMPILER=mpicxx MPI_CXX_COMPILE_FLAGS="-O3" luarocks make rocks/torchmpi-scm-1.rockspec
 %runscript
 exec /bin/bash "$@"
