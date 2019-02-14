@@ -71,7 +71,7 @@ make -j 20 all
 make install
 cd ../..
 
-MPI_CXX_COMPILER=mpicxx MPI_CXX_COMPILE_FLAGS="-O3" /cache/usr/luarocks make rocks/torchmpi-scm-1.rockspec
+#MPI_CXX_COMPILER=mpicxx MPI_CXX_COMPILE_FLAGS="-O3" /cache/usr/luarocks make rocks/torchmpi-scm-1.rockspec
 # TorchMPI
 %runscript
 exec /bin/bash "$@"
