@@ -30,6 +30,6 @@ make -j 4
 make install
 cd ../..
 ls /cache/usr 
-
+which luarocks
 %runscript
 exec /bin/bash "$@"
