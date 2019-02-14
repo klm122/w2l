@@ -40,6 +40,19 @@ make install
 
 cd ..
 
+git clone https://github.com/facebookresearch/TorchMPI.git
+cd rocks
 MPI_CXX_COMPILER=mpicxx MPI_CXX_COMPILE_FLAGS="-O3" /cache/usr/luajit/bin/luarocks make rocks/torchmpi-scm-1.rockspec
+cd ..
+
+# wav2letter packages
+git clone https://github.com/facebookresearch/wav2letter.git
+cd wav2letter
+cd gtn && /cache/usr/luajit/bin/luarocks make rocks/gtn-scm-1.rockspec && cd ..
+cd speech && /cache/usr/luajit/bin/luarocks make rocks/speech-scm-1.rockspec && cd ..
+cd torchnet-optim && /cache/usr/luajit/bin/luarocks make rocks/torchnet-optim-scm-1.rockspec && cd ..
+cd wav2letter && /cache/usr/luajit/bin/luarocks make rocks/wav2letter-scm-1.rockspec && cd ..
+cd beamer && KENLM_INC=/kenlm /cache/usr/luarocks make rocks/beamer-scm-1.rockspec && cd ..
+cd ..
 %runscript
 exec /bin/bash "$@"
