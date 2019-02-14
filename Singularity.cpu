@@ -1,5 +1,9 @@
 Bootstrap: docker
 From: ubuntu:latest
+%labels
+MAINTAINER KOULALI
+SPECIES Dinosaur
+
 %files
 %environment
 # Update bashrc file to include mkl
