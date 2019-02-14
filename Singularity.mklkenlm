@@ -37,6 +37,10 @@ cd luarocks-3.0.4
 make
 make install 
 
-pwd
+echo "------"
+/cache/usr/luajit/luarocks
+echo "------"
+luaroks
+echo "------"
 %runscript
 exec /bin/bash "$@"
