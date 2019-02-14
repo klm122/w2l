@@ -40,8 +40,6 @@ make install
 
 cd ..
 
-echo "------"
-ls /cache/usr/luajit/
-echo "------"
+MPI_CXX_COMPILER=mpicxx MPI_CXX_COMPILE_FLAGS="-O3" /cache/usr/luajit/bin/luarocks make rocks/torchmpi-scm-1.rockspec
 %runscript
 exec /bin/bash "$@"
