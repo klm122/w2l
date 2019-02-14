@@ -19,17 +19,33 @@ mkdir -p /cache/eigen-eigen-07105f7124f9
 
 # Install dependencies
 apt-get update -y
-apt-get install -y apt-utils git wget curl cmake build-essential apt-utils unzip apt-transport-https
+#apt-get install -y apt-utils git wget curl cmake build-essential apt-utils unzip apt-transport-https
+
+wget http://luajit.org/download/LuaJIT-2.0.5.tar.gz
+tar zxf LuaJIT-2.0.5.tar.gz
+cd LuaJIT-2.0.5
+make
+make install PREFIX=/usr/cache
+
+wget http://luarocks.github.io/luarocks/releases/luarocks-3.0.4.tar.gz
+tar zxf luarocks-3.0.4.tar.gz
+cd luarocks-3.0.4
+./configure --prefix=/usr/cache
+make
+make install
+
+which luarocks
+ls /cache/usr
 
 # LuaJIT and LuaRocks
-git clone https://github.com/torch/luajit-rocks.git
-cd luajit-rocks
-mkdir build; cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=/cache/usr -DWITH_LUAJIT21=OFF
-make -j 4
-make install
-cd ../..
-ls /cache/usr 
-which luarocks
+#git clone https://github.com/torch/luajit-rocks.git
+#cd luajit-rocks
+#mkdir build; cd build
+#cmake .. -DCMAKE_INSTALL_PREFIX=/cache/usr -DWITH_LUAJIT21=OFF
+#make -j 4
+#make install
+#cd ../..
+#ls /cache/usr 
+
 %runscript
 exec /bin/bash "$@"
