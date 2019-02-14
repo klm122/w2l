@@ -42,9 +42,8 @@ cd ..
 
 git clone https://github.com/facebookresearch/TorchMPI.git
 cd TorchMPI
-cd rocks
 MPI_CXX_COMPILER=mpicxx MPI_CXX_COMPILE_FLAGS="-O3" /cache/usr/luajit/bin/luarocks make rocks/torchmpi-scm-1.rockspec
-cd ../..
+cd ..
 
 # wav2letter packages
 git clone https://github.com/facebookresearch/wav2letter.git
