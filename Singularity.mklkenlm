@@ -28,13 +28,18 @@ cd LuaJIT-2.0.5
 make
 make install PREFIX=/cache/usr/luajit
 
+echo "£££££"
+ls /cache/usr/luajit/include/
+echo "£££££"
+ls/cache/usr/luajit/
+
 wget http://luarocks.github.io/luarocks/releases/luarocks-3.0.4.tar.gz
 tar zxf luarocks-3.0.4.tar.gz
 cd luarocks-3.0.4
 ./configure --prefix=/cache/usr/luajit \
     --with-lua=/cache/usr/luajit/ \
-    --lua-suffix=jit
-#    \--with-lua-include=/cache/usr/luajit/include/luajit-2.1
+    --lua-suffix=jit \
+    --with-lua-include=/cache/usr/luajit/include/luajit-2.0.5
 
 make
 make install
