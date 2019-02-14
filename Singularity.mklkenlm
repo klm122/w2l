@@ -26,6 +26,7 @@ tar zxf LuaJIT-2.0.5.tar.gz
 cd LuaJIT-2.0.5
 make
 make install PREFIX=/cache/usr/luajit
+cd ..
 
 wget http://luarocks.github.io/luarocks/releases/luarocks-3.0.4.tar.gz
 tar zxf luarocks-3.0.4.tar.gz
@@ -37,10 +38,10 @@ cd luarocks-3.0.4
 make
 make install 
 
+cd ..
+
 echo "------"
-/cache/usr/luajit/luarocks
-echo "------"
-luaroks
+ls /cache/usr/luajit/
 echo "------"
 %runscript
 exec /bin/bash "$@"
