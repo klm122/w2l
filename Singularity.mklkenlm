@@ -33,10 +33,10 @@ cmake .. -DCMAKE_INSTALL_PREFIX=/cache
 make install
 cd ../..
 
-/cache/usr/luajit/bin/luarocks install torchnet
-/cache/usr/luajit/bin/luarocks install cutorch
-/cache/usr/luajit/bin/luarocks install cunn
-/cache/usr/luajit/bin/luarocks install cudnn
+/cache/bin/luarocks install torchnet
+/cache/bin/luarocks install cutorch
+/cache/bin/luarocks install cunn
+/cache/bin/luarocks install cudnn
  
 wget https://www.open-mpi.org/software/ompi/v2.0/downloads/openmpi-2.0.1.tar.bz2 && bunzip2 openmpi-2.0.1.tar.bz2 && tar xf openmpi-2.0.1.tar && cd openmpi-2.0.1
 ./configure --prefix=/cache/usr --enable-mpi-cxx --enable-shared --with-slurm --enable-event-thread-support --enable-opal-multi-threads --enable-orte-progress-threads --enable-mpi-thread-multiple --enable-mpi-ext=affinity
@@ -44,17 +44,17 @@ make -j 16 && make install
 
 git clone https://github.com/facebookresearch/TorchMPI.git
 cd TorchMPI
-MPI_CXX_COMPILER=mpicxx MPI_CXX_COMPILE_FLAGS="-O3" /cache/usr/luajit/bin/luarocks make rocks/torchmpi-scm-1.rockspec
+MPI_CXX_COMPILER=mpicxx MPI_CXX_COMPILE_FLAGS="-O3" /cache/bin/luarocks make rocks/torchmpi-scm-1.rockspec
 cd ..
 
 # wav2letter packages
 git clone https://github.com/facebookresearch/wav2letter.git
 cd wav2letter
-cd gtn && /cache/usr/luajit/bin/luarocks make rocks/gtn-scm-1.rockspec && cd ..
-cd speech && /cache/usr/luajit/bin/luarocks make rocks/speech-scm-1.rockspec && cd ..
-cd torchnet-optim && /cache/usr/luajit/bin/luarocks make rocks/torchnet-optim-scm-1.rockspec && cd ..
-cd wav2letter && /cache/usr/luajit/bin/luarocks make rocks/wav2letter-scm-1.rockspec && cd ..
-cd beamer && KENLM_INC=/kenlm /cache/usr/luarocks make rocks/beamer-scm-1.rockspec && cd ..
+cd gtn && /cache/bin/luarocks make rocks/gtn-scm-1.rockspec && cd ..
+cd speech && /cache/bin/luarocks make rocks/speech-scm-1.rockspec && cd ..
+cd torchnet-optim && /cache/bin/luarocks make rocks/torchnet-optim-scm-1.rockspec && cd ..
+cd wav2letter && /cache/bin/luarocks make rocks/wav2letter-scm-1.rockspec && cd ..
+cd beamer && KENLM_INC=/kenlm /cache/bin/luarocks make rocks/beamer-scm-1.rockspec && cd ..
 cd ..
 %runscript
 exec /bin/bash "$@"
