@@ -31,11 +31,7 @@ mkdir build
 cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=/cache
 make install
-
 cd ../..
-
-tar zxf luarocks-3.0.4.tar.gz
-#export LUA_LIBDIR=/cache/usr/luajit/lib
 
 /cache/usr/luajit/bin/luarocks install torchnet
 /cache/usr/luajit/bin/luarocks install cutorch
