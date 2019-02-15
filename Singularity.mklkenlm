@@ -34,9 +34,9 @@ make install
 cd ../..
 
 /cache/bin/luarocks install torchnet
-/cache/bin/luarocks install cutorch
-/cache/bin/luarocks install cunn
-/cache/bin/luarocks install cudnn
+#/cache/bin/luarocks install cutorch
+#/cache/bin/luarocks install cunn
+#/cache/bin/luarocks install cudnn
  
 wget https://www.open-mpi.org/software/ompi/v2.0/downloads/openmpi-2.0.1.tar.bz2 && bunzip2 openmpi-2.0.1.tar.bz2 && tar xf openmpi-2.0.1.tar && cd openmpi-2.0.1
 ./configure --prefix=/cache/usr --enable-mpi-cxx --enable-shared --with-slurm --enable-event-thread-support --enable-opal-multi-threads --enable-orte-progress-threads --enable-mpi-thread-multiple --enable-mpi-ext=affinity
