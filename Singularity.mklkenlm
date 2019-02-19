@@ -2,24 +2,21 @@ Bootstrap: docker
 From: ubuntu:latest
 %environment
 # Update bashrc file to include mkl
-export PATH=/cache/usr/bin:$PATH
+export PATH=/softs/usr/bin:$PATH
 export INTEL_DIR=/opt/intel/lib/intel64
 export MKL_DIR=/opt/intel/mkl/lib/intel64
 export MKL_INC_DIR=/opt/intel/mkl/include
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$INTEL_DIR:$MKL_DIR
 export CMAKE_LIBRARY_PATH=$LD_LIBRARY_PATH
 export CMAKE_INCLUDE_PATH=$CMAKE_INCLUDE_PATH:$MKL_INC_DIR
-export EIGEN3_ROOT=/cache/eigen-eigen-07105f7124f9
+export EIGEN3_ROOT=/softs/eigen-eigen-07105f7124f9
 %post
-#mkdir -p /softs/usr/lib
-#mkdir -p /softs/usr/bin
-mkdir -p /cache/usr/bin
-mkdir -p /cache/usr/lib
-#mkdir -p /cache/usr/luajit
-mkdir -p /cache/eigen-eigen-07105f7124f9
-cd /cache
 
-# Install dependencies
+mkdir -p /softs/usr/bin
+mkdir -p /softs/usr/lib
+mkdir -p /softs/eigen-eigen-07105f7124f9
+cd /softs
+
 # Install dependencies
 apt-get update -y
 apt-get install -y apt-utils git wget curl cmake build-essential unzip apt-transport-https
@@ -28,7 +25,6 @@ apt-get install -y libfftw3-dev libfftw3-doc libsndfile-dev
 
 
 # Install MKL - modified from https://github.com/eddelbuettel/mkl4deb/blob/master/script.sh
-#cd /tmp
 wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
 apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
 sh -c 'echo deb https://apt.repos.intel.com/mkl all main > /etc/apt/sources.list.d/intel-mkl.list'
@@ -48,14 +44,14 @@ git clone https://github.com/torch/luajit-rocks.git
 cd luajit-rocks
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=/cache
+cmake .. -DCMAKE_INSTALL_PREFIX=/softs
 make install
 cd ../..
 
-/cache/bin/luarocks install torchnet
-#/cache/bin/luarocks install cutorch
-#/cache/bin/luarocks install cunn
-#/cache/bin/luarocks install cudnn
+/softs/bin/luarocks install torchnet
+#/softs/bin/luarocks install cutorch
+#/softs/bin/luarocks install cunn
+#/softs/bin/luarocks install cudnn
  
 #KenLM
 wget https://kheafield.com/code/kenlm.tar.gz
@@ -63,31 +59,31 @@ tar xfvz kenlm.tar.gz
 rm kenlm.tar.gz
 cd kenlm
 mkdir build && cd build
-(cd /cache; wget -O - https://bitbucket.org/eigen/eigen/get/3.2.8.tar.bz2 |tar xj)
-cmake .. -DCMAKE_INSTALL_PREFIX=/cache/usr -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+(cd /softs; wget -O - https://bitbucket.org/eigen/eigen/get/3.2.8.tar.bz2 |tar xj)
+cmake .. -DCMAKE_INSTALL_PREFIX=/softs/usr -DCMAKE_POSITION_INDEPENDENT_CODE=ON
 make -j 4
 make install
-cp -a lib/* /cache/usr/lib
+cp -a lib/* /softs/usr/lib
 cd ../..
 
 wget https://www.open-mpi.org/software/ompi/v2.0/downloads/openmpi-2.0.1.tar.bz2 && bunzip2 openmpi-2.0.1.tar.bz2 && tar xf openmpi-2.0.1.tar && cd openmpi-2.0.1
-./configure --prefix=/cache/usr --enable-mpi-cxx --enable-shared --with-slurm --enable-event-thread-support --enable-opal-multi-threads --enable-orte-progress-threads --enable-mpi-thread-multiple --enable-mpi-ext=affinity
+./configure --prefix=/softs/usr --enable-mpi-cxx --enable-shared --with-slurm --enable-event-thread-support --enable-opal-multi-threads --enable-orte-progress-threads --enable-mpi-thread-multiple --enable-mpi-ext=affinity
 make -j 16 && make install
 cd ..
  
 git clone https://github.com/facebookresearch/TorchMPI.git
 cd TorchMPI
-MPI_CXX_COMPILER=mpicxx MPI_CXX_COMPILE_FLAGS="-O3" /cache/bin/luarocks make rocks/torchmpi-scm-1.rockspec
+MPI_CXX_COMPILER=mpicxx MPI_CXX_COMPILE_FLAGS="-O3" /softs/bin/luarocks make rocks/torchmpi-scm-1.rockspec
 cd ..
 
 # wav2letter packages
 git clone https://github.com/facebookresearch/wav2letter.git
 cd wav2letter
-cd gtn && /cache/bin/luarocks make rocks/gtn-scm-1.rockspec && cd ..
-cd speech && /cache/bin/luarocks make rocks/speech-scm-1.rockspec && cd ..
-cd torchnet-optim && /cache/bin/luarocks make rocks/torchnet-optim-scm-1.rockspec && cd ..
-cd wav2letter && /cache/bin/luarocks make rocks/wav2letter-scm-1.rockspec && cd ..
-cd beamer && KENLM_INC=/kenlm /cache/bin/luarocks make rocks/beamer-scm-1.rockspec && cd ..
+cd gtn && /softs/bin/luarocks make rocks/gtn-scm-1.rockspec && cd ..
+cd speech && /softs/bin/luarocks make rocks/speech-scm-1.rockspec && cd ..
+cd torchnet-optim && /softs/bin/luarocks make rocks/torchnet-optim-scm-1.rockspec && cd ..
+cd wav2letter && /softs/bin/luarocks make rocks/wav2letter-scm-1.rockspec && cd ..
+cd beamer && KENLM_INC=/kenlm /softs/bin/luarocks make rocks/beamer-scm-1.rockspec && cd ..
 cd ..
 
 %runscript
