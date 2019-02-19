@@ -1,96 +1,134 @@
 Bootstrap: docker
-From: ubuntu:latest
+From: nvidia/cuda:9.2-cudnn7-devel-ubuntu16.04
 %files
 %environment
 # Update bashrc file to include mkl
-export PATH=/cache/usr/bin:$PATH
-export INTEL_DIR=/opt/intel/lib/intel64
-export MKL_DIR=/opt/intel/mkl/lib/intel64
-export MKL_INC_DIR=/opt/intel/mkl/include
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$INTEL_DIR:$MKL_DIR
-export CMAKE_LIBRARY_PATH=$LD_LIBRARY_PATH
-export CMAKE_INCLUDE_PATH=$CMAKE_INCLUDE_PATH:$MKL_INC_DIR
-export EIGEN3_ROOT=/cache/eigen-eigen-07105f7124f9
+export APT_INSTALL="apt-get install -y --no-install-recommends"
+export DEBIAN_FRONTEND=noninteractive
+export PIP_INSTALL="python3 -m pip --no-cache-dir install --upgrade"
+export MKLROOT=/opt/intel/mkl
+export KENLM_ROOT_DIR=/root/kenlm
+
 %post
-mkdir -p /softs/usr/lib
-mkdir -p /softs/usr/bin
-mkdir -p /cache/usr/bin
-mkdir -p /cache/usr/luajit
-mkdir -p /cache/eigen-eigen-07105f7124f9
+%%%%%
+    rm -rf /var/lib/apt/lists/* \
+           /etc/apt/sources.list.d/cuda.list \
+           /etc/apt/sources.list.d/nvidia-ml.list && \
+    apt-get update && \
+     $APT_INSTALL \
+        build-essential \
+        ca-certificates \
+        cmake \
+        wget \
+        git \
+        vim \
+        emacs \
+        nano \
+        htop \
+        g++ \
+        # ssh for OpenMPI
+        openssh-server openssh-client \
+        # OpenMPI
+        libopenmpi-dev libomp-dev \
+        # nccl: for flashlight
+        libnccl2 libnccl-dev \
+        # for libsndfile
+        autoconf automake autogen build-essential libasound2-dev \
+        libflac-dev libogg-dev libtool libvorbis-dev pkg-config python \
+        # for Intel's Math Kernel Library (MKL)
+        cpio \
+        # FFTW
+        libfftw3-dev \
+        # for kenlm
+        zlib1g-dev libbz2-dev liblzma-dev libboost-all-dev \
+        # gflags
+        libgflags-dev libgflags2v5 \
+        # for glog
+        libgoogle-glog-dev libgoogle-glog0v5 \
+        # for receipts data processing
+        sox && \
+# ==================================================================
+# python (for receipts data processing)
+# ------------------------------------------------------------------
+     $APT_INSTALL \
+        software-properties-common \
+    add-apt-repository ppa:deadsnakes/ppa && \
+    apt-get update && \
+    $APT_INSTALL \
+        python3.6 \
+        python3.6-dev \
+        && \
+    wget -O ~/get-pip.py \
+        https://bootstrap.pypa.io/get-pip.py && \
+    python3.6 ~/get-pip.py && \
+    ln -s /usr/bin/python3.6 /usr/local/bin/python3 && \
+    ln -s /usr/bin/python3.6 /usr/local/bin/python && \
+    $PIP_INSTALL \
+        setuptools \
+        && \
+    $PIP_INSTALL \
+        sox \
+        tqdm && \
+# ==================================================================
+# arrayfire https://github.com/arrayfire/arrayfire/wiki/
+# ------------------------------------------------------------------
+    cd /tmp && git clone --recursive https://github.com/arrayfire/arrayfire.git && \
+    cd arrayfire && git checkout v3.6.2 && \
+    mkdir build && cd build && \
+    CXXFLAGS=-DOS_LNX cmake .. -DCMAKE_BUILD_TYPE=Release -DAF_BUILD_CPU=OFF -DAF_BUILD_OPENCL=OFF -DAF_BUILD_EXAMPLES=OFF && \
+    make -j8 && \
+    make install && \
+# ==================================================================
+# flashlight https://github.com/facebookresearch/flashlight.git
+# ------------------------------------------------------------------
+# If the driver is not found (during docker build) the cuda driver api need to be linked against the
+# libcuda.so stub located in the lib[64]/stubs directory
+    ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/lib/x86_64-linux-gnu/libcuda.so.1 && \
+    cd /root && git clone --recursive https://github.com/facebookresearch/flashlight.git && \
+    cd /root/flashlight && mkdir -p build && \
+    cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DFLASHLIGHT_BACKEND=CUDA && \
+    make -j8 && make install && \
+# ==================================================================
+# libsndfile https://github.com/erikd/libsndfile.git
+# ------------------------------------------------------------------
+    cd /tmp && git clone https://github.com/erikd/libsndfile.git && \
+    cd libsndfile && git checkout bef2abc9e888142203953addc31c50a192e496e5 && \
+    ./autogen.sh && ./configure --enable-werror && \
+    make && make check && make install && \
+# ==================================================================
+# MKL https://software.intel.com/en-us/mkl
+# ------------------------------------------------------------------
+    cd /tmp && wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB && \
+    apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB && \
+    wget https://apt.repos.intel.com/setup/intelproducts.list -O /etc/apt/sources.list.d/intelproducts.list && \
+    sh -c 'echo deb https://apt.repos.intel.com/mkl all main > /etc/apt/sources.list.d/intel-mkl.list' && \
+    apt-get update && DEBIAN_FRONTEND=noninteractive $APT_INSTALL intel-mkl-64bit-2018.4-057 && \
+# ==================================================================
+# KenLM https://github.com/kpu/kenlm
+# ------------------------------------------------------------------
+    cd /root && git clone https://github.com/kpu/kenlm.git && \
+    cd kenlm && git checkout e47088ddfae810a5ee4c8a9923b5f8071bed1ae8 && \
+    mkdir build && cd build && \
+    cmake .. && \
+    make -j8 && make install && \
+# ==================================================================
+# config & cleanup
+# ------------------------------------------------------------------
+    ldconfig && \
+    apt-get clean && \
+    apt-get autoremove && \
+    rm -rf /var/lib/apt/lists/* /tmp/*
 
-# Install dependencies
-apt-get update -y
-apt-get install -y apt-utils git wget curl cmake build-essential unzip apt-transport-https
-apt-get install -y libboost-dev libboost-system-dev libboost-thread-dev libboost-test-dev libboost-all-dev zlib1g-dev bzip2 libbz2-dev liblzma-dev -y
-apt-get install -y libfftw3-dev libfftw3-doc libsndfile-dev
+mkdir /root/wav2letter
+cp . /root/wav2letter
 
-# Install MKL - modified from https://github.com/eddelbuettel/mkl4deb/blob/master/script.sh
-cd /tmp
-wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
-apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
-sh -c 'echo deb https://apt.repos.intel.com/mkl all main > /etc/apt/sources.list.d/intel-mkl.list'
-apt-get update -y
-apt-get install intel-mkl-64bit-2018.2-046 -y
-update-alternatives --install /usr/lib/x86_64-linux-gnu/libblas.so     libblas.so-x86_64-linux-gnu      /opt/intel/mkl/lib/intel64/libmkl_rt.so 50
-update-alternatives --install /usr/lib/x86_64-linux-gnu/libblas.so.3   libblas.so.3-x86_64-linux-gnu    /opt/intel/mkl/lib/intel64/libmkl_rt.so 50
-update-alternatives --install /usr/lib/x86_64-linux-gnu/liblapack.so   liblapack.so-x86_64-linux-gnu    /opt/intel/mkl/lib/intel64/libmkl_rt.so 50
-update-alternatives --install /usr/lib/x86_64-linux-gnu/liblapack.so.3 liblapack.so.3-x86_64-linux-gnu  /opt/intel/mkl/lib/intel64/libmkl_rt.so 50
-echo "/opt/intel/lib/intel64"     >  /etc/ld.so.conf.d/mkl.conf
-echo "/opt/intel/mkl/lib/intel64" >> /etc/ld.so.conf.d/mkl.conf
-ldconfig
-echo "MKL_THREADING_LAYER=GNU" >> /etc/environment
+# ==================================================================
+# wav2letter with GPU backend
+# ------------------------------------------------------------------
+    cd /root/wav2letter && mkdir -p build && \
+    cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DW2L_CRITERION_BACKEND=CUDA && \
+    make -j8
 
-# LuaJIT and LuaRocks
-#git clone https://github.com/torch/luajit-rocks.git
-#cd luajit-rocks
-#mkdir build; cd build
-#cmake .. -DCMAKE_INSTALL_PREFIX=/cache/usr -DWITH_LUAJIT21=OFF
-#make -j 4
-#make install
-#cd ../..
-
-wget http://luajit.org/download/LuaJIT-2.0.5.tar.gz
-tar zxf LuaJIT-2.0.5.tar.gz
-cd LuaJIT-2.0.5
-make
-make install PREFIX=/cache/usr/luajit
-cd ..
-
-wget http://luarocks.github.io/luarocks/releases/luarocks-3.0.4.tar.gz
-tar zxf luarocks-3.0.4.tar.gz
-cd luarocks-3.0.4
-./configure --prefix=/cache/usr/luajit \
-    --with-lua=/cache/usr/luajit/ \
-    --lua-suffix=jit \
-    --with-lua-include=/cache/usr/luajit/include/luajit-2.0
-make
-make install 
-cd ..
-
-#KenLM
-wget https://kheafield.com/code/kenlm.tar.gz
-tar xfvz kenlm.tar.gz
-rm kenlm.tar.gz
-cd kenlm
-mkdir build && cd build
-(cd /cache; wget -O - https://bitbucket.org/eigen/eigen/get/3.2.8.tar.bz2 |tar xj)
-cmake .. -DCMAKE_INSTALL_PREFIX=/cache/usr -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-make -j 4
-make install
-cp -a lib/* /softs/usr/lib
-cd ../..
-
-# OpenMPI
-wget https://www.open-mpi.org/software/ompi/v3.0/downloads/openmpi-3.0.1.tar.bz2
-tar xfj openmpi-3.0.1.tar.bz2
-rm openmpi-3.0.1.tar.bz2 
-cd openmpi-3.0.1; mkdir build; cd build
-../configure --prefix=/cache/usr --enable-mpi-cxx --enable-shared --with-slurm --enable-mpi-ext=affinity
-make -j 20 all
-make install
-cd ../..
-
-# TorchMPI
-MPI_CXX_COMPILER=mpicxx MPI_CXX_COMPILE_FLAGS="-O3" luarocks make rocks/torchmpi-scm-1.rockspec
+%%%%%
 %runscript
 exec /bin/bash "$@"
