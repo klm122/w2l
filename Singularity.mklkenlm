@@ -1,5 +1,7 @@
 Bootstrap: docker
 From: ubuntu:16.04
+%environment
+export APT_INSTALL="apt-get install -y --no-install-recommends"
 %post
 # ==================================================================
 # module list
@@ -20,8 +22,7 @@ From: ubuntu:16.04
 # python           3.6          (apt)
 # ==================================================================
 mkdir /softs
-
-APT_INSTALL="apt-get install -y --no-install-recommends" && \
+rm -rf /var/lib/apt/lists/*
 apt-get update && \
 DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
 build-essential \
@@ -33,8 +34,7 @@ emacs \
 nano \
 htop \
 g++ \
-# for MKL
-apt-transport-https cpio \
+cpio \
 # for arrayfire CPU backend
         # OpenBLAS
         libopenblas-dev libfftw3-dev liblapacke-dev \
