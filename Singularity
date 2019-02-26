@@ -12,6 +12,7 @@ export KENLM_ROOT_DIR=/softs/kenlm
 %post
 %%%%%
 mkdir /softs
+cd /softs
     rm -rf /var/lib/apt/lists/* \
            /etc/apt/sources.list.d/cuda.list \
            /etc/apt/sources.list.d/nvidia-ml.list && \
