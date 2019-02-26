@@ -2,6 +2,7 @@ Bootstrap: docker
 From: ubuntu:16.04
 %environment
 export APT_INSTALL="apt-get install -y --no-install-recommends"
+export DEBIAN_FRONTEND=noninteractive 
 %post
 # ==================================================================
 # module list
@@ -24,7 +25,7 @@ export APT_INSTALL="apt-get install -y --no-install-recommends"
 mkdir /softs
 rm -rf /var/lib/apt/lists/*
 apt-get update && \
-DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
+$APT_INSTALL \
 build-essential \
 ca-certificates \
 wget \
