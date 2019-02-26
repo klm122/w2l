@@ -34,7 +34,7 @@ nano \
 htop \
 g++ \
 # for MKL
-cpio \
+apt-transport-https cpio \
 # for arrayfire CPU backend
         # OpenBLAS
         libopenblas-dev libfftw3-dev liblapacke-dev \
