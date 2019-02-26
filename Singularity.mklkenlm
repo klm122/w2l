@@ -37,7 +37,7 @@ g++ \
 cpio \
 # for arrayfire CPU backend
         # OpenBLAS
-        libopenblas-dev libfftw3-dev liblapacke-dev \
+ libfftw3-dev \
         # ATLAS
         libatlas3-base libatlas-dev \
         # ssh for OpenMPI
