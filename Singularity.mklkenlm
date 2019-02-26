@@ -36,7 +36,7 @@ htop \
 g++ \
 cpio \
  libfftw3-dev \
-        # ATLAS
+        # ATLA
         libatlas3-base libatlas-dev \
         # ssh for OpenMPI
         openssh-server openssh-client \
