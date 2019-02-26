@@ -35,8 +35,6 @@ nano \
 htop \
 g++ \
 cpio \
-# for arrayfire CPU backend
-        # OpenBLAS
  libfftw3-dev \
         # ATLAS
         libatlas3-base libatlas-dev \
