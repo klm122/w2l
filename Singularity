@@ -1,8 +1,6 @@
 Bootstrap: docker
 From: nvidia/cuda:9.1-cudnn7-devel-ubuntu16.04
-%files
 %environment
-# Update bashrc file to include mkl
 export APT_INSTALL="apt-get install -y --no-install-recommends"
 export DEBIAN_FRONTEND=noninteractive
 export PIP_INSTALL="python3 -m pip --no-cache-dir install --upgrade"
@@ -11,6 +9,12 @@ export KENLM_ROOT_DIR=/softs/kenlm
 
 %post
 %%%%%
+export APT_INSTALL="apt-get install -y --no-install-recommends"
+export DEBIAN_FRONTEND=noninteractive
+export PIP_INSTALL="python3 -m pip --no-cache-dir install --upgrade"
+export MKLROOT=/opt/intel/mkl
+export KENLM_ROOT_DIR=/softs/kenlm
+
 mkdir /softs
 cd /softs
     rm -rf /var/lib/apt/lists/* \
