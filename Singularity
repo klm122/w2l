@@ -7,10 +7,11 @@ export APT_INSTALL="apt-get install -y --no-install-recommends"
 export DEBIAN_FRONTEND=noninteractive
 export PIP_INSTALL="python3 -m pip --no-cache-dir install --upgrade"
 export MKLROOT=/opt/intel/mkl
-export KENLM_ROOT_DIR=/root/kenlm
+export KENLM_ROOT_DIR=/softs/kenlm
 
 %post
 %%%%%
+mkdir /softs
     rm -rf /var/lib/apt/lists/* \
            /etc/apt/sources.list.d/cuda.list \
            /etc/apt/sources.list.d/nvidia-ml.list && \
@@ -84,8 +85,8 @@ export KENLM_ROOT_DIR=/root/kenlm
 # If the driver is not found (during docker build) the cuda driver api need to be linked against the
 # libcuda.so stub located in the lib[64]/stubs directory
     ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/lib/x86_64-linux-gnu/libcuda.so.1 && \
-    cd /root && git clone --recursive https://github.com/facebookresearch/flashlight.git && \
-    cd /root/flashlight && mkdir -p build && \
+    cd /softs && git clone --recursive https://github.com/facebookresearch/flashlight.git && \
+    cd /softs/flashlight && mkdir -p build && \
     cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DFLASHLIGHT_BACKEND=CUDA && \
     make -j8 && make install && \
 # ==================================================================
@@ -106,7 +107,7 @@ export KENLM_ROOT_DIR=/root/kenlm
 # ==================================================================
 # KenLM https://github.com/kpu/kenlm
 # ------------------------------------------------------------------
-    cd /root && git clone https://github.com/kpu/kenlm.git && \
+    cd /softs && git clone https://github.com/kpu/kenlm.git && \
     cd kenlm && git checkout e47088ddfae810a5ee4c8a9923b5f8071bed1ae8 && \
     mkdir build && cd build && \
     cmake .. && \
@@ -119,13 +120,13 @@ export KENLM_ROOT_DIR=/root/kenlm
     apt-get autoremove && \
     rm -rf /var/lib/apt/lists/* /tmp/*
 
-mkdir /root/wav2letter
-cp . /root/wav2letter
+mkdir /softs/wav2letter
+cp . /softs/wav2letter
 
 # ==================================================================
 # wav2letter with GPU backend
 # ------------------------------------------------------------------
-    cd /root/wav2letter && mkdir -p build && \
+    cd /softs/wav2letter && mkdir -p build && \
     cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DW2L_CRITERION_BACKEND=CUDA && \
     make -j8
 
