@@ -9,6 +9,6 @@ export KENLM_ROOT_DIR=/softs/kenlm
 %post
 apt-get update && \
      $APT_INSTALL \
-        build-essential
+        wget bzip2 python-pip git zsh
 %runscript
 exec /bin/bash "$@"
