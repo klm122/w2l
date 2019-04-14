@@ -1,11 +1,13 @@
 Bootstrap: docker
-From: debian:stretch
+From: nvidia/cuda:9.1-cudnn7-devel-ubuntu16.04
 %environment
-export VERSION=1.11.4
-export OS=linux
-export ARCH=amd64
-export GOPATH=${HOME}/go
+export APT_INSTALL="apt-get install -y --no-install-recommends"
+export DEBIAN_FRONTEND=noninteractive
+export PIP_INSTALL="python3 -m pip --no-cache-dir install --upgrade"
+export MKLROOT=/opt/intel/mkl
+export KENLM_ROOT_DIR=/softs/kenlm
+
 %post
-apt-get update && \
+mkdir /softs
 %runscript
 exec /bin/bash "$@"
