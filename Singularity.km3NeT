@@ -7,3 +7,5 @@ export ARCH=amd64
 export GOPATH=${HOME}/go
 %post
 apt-get update && \
+%runscript
+exec /bin/bash "$@"
