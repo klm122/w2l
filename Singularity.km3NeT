@@ -1,0 +1,27 @@
+FROM debian:stretch
+  MAINTAINER Kay Graf <kay.graf@km3net.de>
+#Install Singularity as described on https://github.com/sylabs/singularity/blob/master/INSTALL.md
+  RUN apt-get update -qq && apt-get install -qq -y wget bzip2 python-pip git zsh 
+  RUN apt-get install -qq -y build-essential libssl-dev uuid-dev libgpgme11-dev libseccomp-dev pkg-config squashfs-tools 
+  RUN export VERSION=1.11.4 OS=linux ARCH=amd64 && wget -q -O /tmp/go${VERSION}.${OS}-${ARCH}.tar.gz https://dl.google.com/go/go${VERSION}.${OS}-${ARCH}.tar.gz && \ 
+ tar -C /usr/local -xzf /tmp/go${VERSION}.${OS}-${ARCH}.tar.gz
+  RUN export GOPATH=${HOME}/go && mkdir -p ${GOPATH}/src/github.com/sylabs && cd ${GOPATH}/src/github.com/sylabs &&\ 
+ git clone https://github.com/sylabs/singularity.git && cd singularity && git checkout v3.1.0-rc2
+  RUN export GOPATH=${HOME}/go && export PATH=/usr/local/go/bin:${PATH}:${GOPATH}/bin && cd ${GOPATH}/src/github.com/sylabs/singularity && ./mconfig && cd ./builddir && make && make install
+#Include Jpp shell functions:
+  RUN wget https://git.km3net.de/common/jpp/raw/758d57dae93c9624670e2e9dde2aef5b5186d732/software/scripts/ulib.sh?inline=false -O /usr/local/bin/ulib.sh && chmod a+rx /usr/local/bin/ulib.sh
+ 
+#Set the go environment 
+   RUN echo '\
+ export GOPATH=${HOME}/go\n\
+ export PATH=/usr/local/go/bin:${PATH}:${GOPATH}/bin'\
+     >> /etc/profile.d/go_env.sh
+
+#Set the ulib (Jpp) environment
+   RUN echo '\
+ if [[ -f /usr/local/bin/ulib.sh ]]\n\
+ then\n\
+ source /usr/local/bin/ulib.sh\n\
+ fi\n'\
+     >> /etc/zsh/zshenv
+ CMD ["/bin/zsh"]
