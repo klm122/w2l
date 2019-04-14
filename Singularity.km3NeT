@@ -1,3 +1,18 @@
 Bootstrap: docker
-From debian:stretch
+From: debian:stretch
+%environment
+export VERSION=1.11.4
+export OS=linux
+export ARCH=amd64
+export GOPATH=${HOME}/go
+%post
 apt-get update -qq && apt-get install -qq -y wget bzip2 python-pip git zsh 
+apt-get install -qq -y build-essential libssl-dev uuid-dev libgpgme11-dev libseccomp-dev pkg-config squashfs-tools 
+wget -q -O /tmp/go${VERSION}.${OS}-${ARCH}.tar.gz https://dl.google.com/go/go${VERSION}.${OS}-${ARCH}.tar.gz 
+tar -C /usr/local -xzf /tmp/go${VERSION}.${OS}-${ARCH}.tar.gz
+
+mkdir -p ${GOPATH}/src/github.com/sylabs && cd ${GOPATH}/src/github.com/sylabs &&\ 
+git clone https://github.com/sylabs/singularity.git && cd singularity && git checkout v3.1.0-rc2
+
+
+
