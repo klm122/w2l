@@ -10,6 +10,6 @@ export KENLM_ROOT_DIR=/softs/kenlm
 export APT_INSTALL="apt-get install -y --no-install-recommends"
 apt-get update && \
      $APT_INSTALL \
-     wget
+     wget bzip2 python-pip git zsh build-essential libssl-dev uuid-dev libgpgme11-dev libseccomp-dev pkg-config squashfs-tools
 %runscript
 exec /bin/bash "$@"
