@@ -7,6 +7,8 @@ export MKLROOT=/opt/intel/mkl
 export KENLM_ROOT_DIR=/softs/kenlm
 
 %post
-mkdir /softs
+apt-get update && \
+     $APT_INSTALL \
+        build-essential
 %runscript
 exec /bin/bash "$@"
