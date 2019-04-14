@@ -18,4 +18,4 @@ echo '\
  fi\n'\
      >> /etc/zsh/zshenv
 %runscript
-exec /bin/bash "$@"
+exec /bin/zsh "$@"
