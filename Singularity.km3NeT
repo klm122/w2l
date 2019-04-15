@@ -1,6 +1,8 @@
 Bootstrap: docker
 From: docker.km3net.de/jpp:latest
-
+%environment
+export DOCKER_USERNAME=ytayalati
+export DOCKER_PASSWORD=Oujda2017
 %labels
     Maintainer Tamas Gal <tgal@km3net.de>
 
