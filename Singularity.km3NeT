@@ -1,21 +1,11 @@
 Bootstrap: docker
-From: debian:stretch
-%environment
-export APT_INSTALL="apt-get install -y --no-install-recommends"
-%post
-export APT_INSTALL="apt-get install -y --no-install-recommends"
-apt-get update && \
-     $APT_INSTALL \
-     wget bzip2 python-pip git zsh build-essential libssl-dev uuid-dev libgpgme11-dev libseccomp-dev pkg-config squashfs-tools
- 
- 
-wget https://git.km3net.de/common/jpp/raw/758d57dae93c9624670e2e9dde2aef5b5186d732/software/scripts/ulib.sh?inline=false -O /usr/local/bin/ulib.sh && chmod a+rx /usr/local/bin/ulib.sh
+From: docker.km3net.de/jpp:latest
 
-echo '\
- if [[ -f /usr/local/bin/ulib.sh ]]\n\
- then\n\
- source /usr/local/bin/ulib.sh\n\
- fi\n'\
-     >> /etc/zsh/zshenv
-%runscript
-exec /bin/zsh "$@"
+%labels
+    Maintainer Tamas Gal <tgal@km3net.de>
+
+%environment
+    CWD=$(pwd)
+    cd /usr/local/root && source bin/thisroot.sh
+    source /Jpp/setenv.sh /Jpp
+    cd $CWD
