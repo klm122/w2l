@@ -7,6 +7,7 @@ export PIP_INSTALL="python3 -m pip --no-cache-dir install --upgrade"
 export MKLROOT=/opt/intel/mkl
 export KENLM_ROOT_DIR=/softs/kenlm
 
+ %%
 
 %post
 %%%%%
@@ -15,6 +16,8 @@ export DEBIAN_FRONTEND=noninteractive
 export PIP_INSTALL="python3 -m pip --no-cache-dir install --upgrade"
 export MKLROOT=/opt/intel/mkl
 export KENLM_ROOT_DIR=/softs/kenlm
+
+ls
 
 mkdir /softs
 cd /softs
