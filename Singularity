@@ -136,6 +136,6 @@ cp . /softs/wav2letter
     cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DW2L_CRITERION_BACKEND=CUDA && \
     make -j8
 
-%%%%%
+%%%%
 %runscript
 exec /bin/bash "$@"
