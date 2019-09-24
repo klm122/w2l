@@ -6,3 +6,4 @@ chmod 755 /root
 %%%%
 %runscript
 exec /bin/bash "$@"
+
