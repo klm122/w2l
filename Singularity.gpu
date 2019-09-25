@@ -5,4 +5,3 @@ From: docker://wav2letter/wav2letter
 chmod 755 /root
 %runscript
 exec /bin/bash "$@"
-
