@@ -6,8 +6,10 @@ From: nvidia/cuda:10.0-cudnn7-runtime-ubuntu14.04
 
 %post
   #Post setup, runs inside the image
-  apt-get update
-  sudo apt-get install wget git
+  APT_INSTALL="apt-get install -y --no-install-recommends" && \
+  apt-get update && \
+  DEBIAN_FRONTEND=noninteractive $APT_INSTALL git wget
+    
   #Default mount point used in Shef Uni's ShARC cluster
   mkdir /scratch /data /shared /fastdata
 
