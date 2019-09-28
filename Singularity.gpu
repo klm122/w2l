@@ -1,5 +1,5 @@
 Bootstrap: docker
-From: nvidia/cuda:10.0-cudnn7-runtime-ubuntu14.04
+From: stimong/caffe2-cuda10-python3.6:densepose-python3_v0.210.67
 
 %setup
   #Runs on host. The path to the image is $SINGULARITY_ROOTFS
