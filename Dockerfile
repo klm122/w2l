@@ -5,7 +5,7 @@ RUN mkdir -p /opt/android-sdk-linux && mkdir -p ~/.android && touch ~/.android/r
 ENV WORKING_DIR /opt
 
 ENV ANDROID_NDK_HOME ${WORKING_DIR}/android-ndk-linux
-ENV ANDROID_TOOLCHAIN_PATH /tmp/my-android-toolchain
+ENV ANDROID_TOOLCHAIN_PATH /opt/my-android-toolchain
 ENV PATH ${ANDROID_TOOLCHAIN_PATH}/bin:${PATH}
 ENV CLANG_FLAGS "-target arm-linux-androideabi -marm -mfpu=vfp -mfloat-abi=softfp --sysroot ${ANDROID_TOOLCHAIN_PATH}/sysroot -gcc-toolchain ${ANDROID_TOOLCHAIN_PATH}"
 
@@ -56,3 +56,5 @@ RUN cd ${WORKING_DIR} && \
 COPY ./compile-kaldi.sh /opt
 
 RUN chmod +x /opt/compile-kaldi.sh
+
+ENTRYPOINT ["./opt/compile-kaldi.sh"]
