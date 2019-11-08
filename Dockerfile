@@ -1,58 +1,67 @@
-FROM ubuntu:16.04
-RUN mkdir -p /opt/android-sdk-linux && mkdir -p ~/.android && touch ~/.android/repositories.cfg
-ENV WORKING_DIR /opt
+# Set the base as the nvidia-cuda Docker
+FROM nvidia/cuda:8.0-devel
 
-ENV ANDROID_NDK_HOME ${WORKING_DIR}/android-ndk-linux
-ENV ANDROID_TOOLCHAIN_PATH /opt/my-android-toolchain
-ENV PATH ${ANDROID_TOOLCHAIN_PATH}/bin:${PATH}
-ENV CLANG_FLAGS "-target arm-linux-androideabi -marm -mfpu=vfp -mfloat-abi=softfp --sysroot ${ANDROID_TOOLCHAIN_PATH}/sysroot -gcc-toolchain ${ANDROID_TOOLCHAIN_PATH}"
+# Create directory for all of the files to go into and cd into it
+WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    ca-certificates \
-    clang \
-    file \
-    gfortran \
-    git \
-    python \
-    unzip \
-    wget && \
-    apt-get clean autoclean && \
-    apt-get autoremove -y
+# Apt-get all needed dependencies
+RUN apt-get update
+RUN apt-get install -y git wget make gcc python python-pip build-essential curl \
+		 cmake libreadline-dev git-core libqt4-dev libjpeg-dev \
+		 libpng-dev ncurses-dev imagemagick libzmq3-dev gfortran \
+		 unzip gnuplot gnuplot-x11 sudo vim libopencv-dev google-perftools \
+		 libgoogle-perftools-dev ffmpeg
+RUN apt-get install -y --no-install-recommends libhdf5-serial-dev liblmdb-dev
+RUN echo "LD_PRELOAD=/usr/lib/libtcmalloc.so.4" | tee -a /etc/environment
+ENV LD_PRELOAD "/usr/lib/libtcmalloc.so.4:$LD_PRELOAD"
 
-##### Install Android toolchain
-RUN cd ${WORKING_DIR} && \
-    wget -q --output-document=android-ndk.zip https://dl.google.com/android/repository/android-ndk-r16b-linux-x86_64.zip && \
-    unzip android-ndk.zip && \
-    rm -f android-ndk.zip && \
-    mv android-ndk-r16b ${ANDROID_NDK_HOME}
+# Install cuDNN and the dev files for cuDNN
+WORKDIR /
+COPY ./docker_files/cuDNN.deb /
+RUN dpkg -i cuDNN.deb
+COPY ./docker_files/dev-cuDNN.deb /
+RUN dpkg -i dev-cuDNN.deb
 
-RUN ${ANDROID_NDK_HOME}/build/tools/make_standalone_toolchain.py --arch arm --api 21 --stl=libc++ --install-dir ${ANDROID_TOOLCHAIN_PATH}
+# Install needed python packages
+RUN pip install --upgrade pip
+RUN pip install numpy PILLOW h5py matplotlib scipy tensorflow-gpu==0.12.0rc0
+RUN git config --global url.https://github.com/.insteadOf git://github.com/
 
-##### Download, compile and install OpenBlas
-RUN cd ${WORKING_DIR} && \
-    git clone https://github.com/xianyi/OpenBLAS && \
-    cd OpenBLAS && \
-    make TARGET=ARMV7 ONLY_CBLAS=1 AR=ar CC="clang ${CLANG_FLAGS}" HOSTCC=gcc ARM_SOFTFP_ABI=1 USE_THREAD=0 NUM_THREADS=32 -j4 && \
-    make install NO_SHARED=1 PREFIX=`pwd`/install
+# Clone git repo
+RUN git clone -b master https://github.com/rohitgirdhar/ActionVLAD.git /app/ActionVLAD --recursive
+WORKDIR /app/ActionVLAD/
+
+#copy weights
+COPY ./docker_files/models/kmeans-init/hmdb51/rgb_conv5_kmeans64.pkl /app/ActionVLAD/models/kmeans-init/hmdb51/
+COPY ./docker_files/models/PreTrained/2-stream-pretrained/hmdb51/flow/split1.ckpt /app/ActionVLAD/models/PreTrained/2-stream-pretrained/hmdb51/flow/
+COPY ./docker_files/models/PreTrained/2-stream-pretrained/hmdb51/flow/split2.ckpt /app/ActionVLAD/models/PreTrained/2-stream-pretrained/hmdb51/flow/
+COPY ./docker_files/models/PreTrained/2-stream-pretrained/hmdb51/flow/split3.ckpt /app/ActionVLAD/models/PreTrained/2-stream-pretrained/hmdb51/flow/
 
 
-##### Download, compile and install CLAPACK
-RUN cd ${WORKING_DIR} && \
-    git clone https://github.com/simonlynen/android_libs && \
-    cd android_libs/lapack && \
-    sed -i 's/LOCAL_MODULE:= testlapack/#LOCAL_MODULE:= testlapack/g' jni/Android.mk && \
-    sed -i 's/LOCAL_SRC_FILES:= testclapack.cpp/#LOCAL_SRC_FILES:= testclapack.cpp/g' jni/Android.mk && \
-    sed -i 's/LOCAL_STATIC_LIBRARIES := lapack/#LOCAL_STATIC_LIBRARIES := lapack/g' jni/Android.mk && \
-    sed -i 's/include $(BUILD_SHARED_LIBRARY)/#include $(BUILD_SHARED_LIBRARY)/g' jni/Android.mk && \
-    ${ANDROID_NDK_HOME}/ndk-build && \
-    cp obj/local/armeabi-v7a/*.a ${WORKING_DIR}/OpenBLAS/install/lib
+COPY ./docker_files/models/PreTrained/ActionVLAD-pretrained/hmdb51/flow/split1.ckpt /app/ActionVLAD/models/PreTrained/ActionVLAD-pretrained/hmdb51/flow/
+COPY ./docker_files/models/PreTrained/ActionVLAD-pretrained/hmdb51/flow/split2.ckpt /app/ActionVLAD/models/PreTrained/ActionVLAD-pretrained/hmdb51/flow/
+COPY ./docker_files/models/PreTrained/ActionVLAD-pretrained/hmdb51/flow/split3.ckpt /app/ActionVLAD/models/PreTrained/ActionVLAD-pretrained/hmdb51/flow/
 
-##### Compile kaldi
-# Using "/opt" because of a bug in Docker:
-# https://github.com/docker/docker/issues/25925
-COPY ./compile-kaldi.sh /opt
+COPY ./docker_files/models/PreTrained/ActionVLAD-pretrained/hmdb51/rgb/split1.ckpt /app/ActionVLAD/models/PreTrained/ActionVLAD-pretrained/hmdb51/rgb/
+COPY ./docker_files/models/PreTrained/ActionVLAD-pretrained/hmdb51/rgb/split2.ckpt /app/ActionVLAD/models/PreTrained/ActionVLAD-pretrained/hmdb51/rgb/
+COPY ./docker_files/models/PreTrained/ActionVLAD-pretrained/hmdb51/rgb/split3.ckpt /app/ActionVLAD/models/PreTrained/ActionVLAD-pretrained/hmdb51/rgb/
 
-RUN chmod +x /opt/compile-kaldi.sh
+COPY ./docker_files/models/PreTrained/imagenet-trained-CUHK/vgg_16_action_rgb_pretrain_uptoConv5.ckpt /app/ActionVLAD/models/PreTrained/imagenet-trained-CUHK/
 
-ENTRYPOINT ["./opt/compile-kaldi.sh"]
+#copy video to test
+COPY ./docker_files/soccer10.mp4 /app/ActionVLAD/demo/
+
+# Copy over cudnn.5.1 also needed for tensorflow
+COPY ./docker_files/cuda_cudnn5_1/lib64/libcudnn.so.5 /usr/lib/x86_64-linux-gnu/
+COPY ./docker_files/cuda_cudnn5_1/lib64/libcudnn.so.5.1.10 /usr/lib/x86_64-linux-gnu/
+COPY ./docker_files/cuda_cudnn5_1/lib64/libcudnn_static_v5.a /usr/lib/x86_64-linux-gnu/
+COPY ./docker_files/cuda_cudnn5_1/include/cudnn_v5.h /usr/include/x86_64-linux-gnu/
+RUN ln -sf /usr/lib/x86_64-linux-gnu/libcudnn_static_v5.a libcudnn_stlib
+RUN ln -sf /usr/lib/x86_64-linux-gnu/libcudnn.so.5 libcudnn_so
+RUN ln -sf /usr/include/x86_64-linux-gnu/cudnn_v5.h libcudnn
+
+# Remove the install files for cuDNN
+WORKDIR /
+RUN rm -f cuDNN.deb dev-cuDNN.deb
+
+WORKDIR /app/ActionVLAD/
