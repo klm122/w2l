@@ -1,7 +1,8 @@
 # Set the base as the nvidia-cuda Docker
-FROM jakubsacha/docker-xmlstarlet
+FROM ubuntu:16.04
 # Create directory for all of the files to go into and cd into it
 
-RUN apt-get update
-RUN apt-get install perl
+RUN apt-get update && apt-get install -y --no-install-recommends \
+perl \
+xmlstarlet
 
